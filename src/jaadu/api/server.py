@@ -53,7 +53,13 @@ def api_world_state(region: str, as_of: str):
 
 
 @app.get("/api/investigate")
-def api_investigate(region: str, as_of: str, gemini: bool = False):
+def api_investigate(region: str, as_of: str, gemini: bool = False, refresh: bool = False):
+    from jaadu.api.cache import load_cached
+
+    if not gemini and not refresh:
+        cached = load_cached(region, as_of)
+        if cached:
+            return cached
     try:
         return investigate(region, as_of, use_gemini=gemini or None)
     except Exception as exc:

@@ -196,9 +196,9 @@ def to_long_observations(
 
 
 def ingest_climate(
-    start: str = "2005-01-01", end: str | None = None
+    start: str = "2008-01-01", end: str | None = "2018-12-31"
 ) -> tuple[pd.DataFrame, list[DatasetRecord]]:
-    end = end or date.today().isoformat()
+    end = end or "2018-12-31"
     records: list[DatasetRecord] = []
     frames = []
     with _client() as client:
