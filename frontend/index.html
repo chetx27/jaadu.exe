@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>jaadu.exe — investigation bench</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@16..72,500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="mast">
+    <div>
+      <p class="kicker">Research prototype · not an operational warning service</p>
+      <h1>jaadu.exe</h1>
+      <p class="deck">Discover the hidden chain of weak signals that forms before a visible failure. Challenge the explanation. Measure what to observe next.</p>
+    </div>
+    <div class="mast-meta">
+      <span>Causal status on edges is observational unless labeled otherwise.</span>
+      <span id="health">API: checking…</span>
+    </div>
+  </header>
+
+  <section class="controls">
+    <label>Region
+      <select id="region"></select>
+    </label>
+    <label>Historical event
+      <select id="event"></select>
+    </label>
+    <label>As-of date (no later information)
+      <input id="asof" type="date" />
+    </label>
+    <button id="run" class="primary">Investigate</button>
+    <button id="reveal" class="ghost" disabled>Reveal historical outcome</button>
+    <label class="toggle">Replay slider
+      <input id="slider" type="range" min="0" max="0" value="0" />
+      <span id="sliderLabel"></span>
+    </label>
+  </section>
+
+  <main class="bench">
+    <section class="panel map-panel">
+      <h2>Geographic scope</h2>
+      <div id="map"></div>
+      <p class="fine" id="regionNote"></p>
+    </section>
+
+    <section class="panel risk-panel">
+      <h2>Risk state</h2>
+      <div id="risk"></div>
+    </section>
+
+    <section class="panel timeline-panel">
+      <h2>Signal timeline <span class="sub">seasonal robust z · |z|≥1.5 is weak, |z|≥2.5 is conventional-abnormal</span></h2>
+      <div id="timeline"></div>
+    </section>
+
+    <section class="panel graph-panel">
+      <h2>Discovered dependency graph</h2>
+      <p class="fine">Edges are lagged associations (PCMCI-lite + Granger screen). They are not confirmed causes. Click a node or edge.</p>
+      <svg id="graph" viewBox="0 0 760 420"></svg>
+      <div id="edgeCard" class="card"></div>
+    </section>
+
+    <section class="panel hyp-panel">
+      <h2>Competing hypotheses</h2>
+      <div id="hyps"></div>
+    </section>
+
+    <section class="panel evid-panel">
+      <h2>Evidence and contradictions</h2>
+      <div id="evidence"></div>
+    </section>
+
+    <section class="panel cf-panel">
+      <h2>Counterfactual / scenario panel</h2>
+      <p class="fine">Matched-period scenarios, not identified causal effects.</p>
+      <div id="cf"></div>
+    </section>
+
+    <section class="panel voi-panel">
+      <h2>What do we need to know next?</h2>
+      <p class="fine">Expected information gain over the hypothesis simplex, cost-normalized. Not an LLM suggestion.</p>
+      <div id="voi"></div>
+    </section>
+
+    <section class="panel demo-panel">
+      <h2>Stress tests</h2>
+      <div class="row">
+        <label>Perturb variable
+          <select id="pvar"></select>
+        </label>
+        <label>Δz
+          <input id="pdelta" type="number" step="0.5" value="-1.5" />
+        </label>
+        <button id="perturb">Rerun under perturbation</button>
+      </div>
+      <div class="row">
+        <label>Drop variables
+          <input id="drop" placeholder="rainfall,soil_moisture" />
+        </label>
+        <button id="ablate">Remove data (no imputation)</button>
+      </div>
+      <pre id="stress"></pre>
+    </section>
+
+    <section class="panel report-panel">
+      <h2>Early-warning report</h2>
+      <article id="report"></article>
+    </section>
+
+    <section class="panel bench-panel">
+      <h2>Benchmark (measured, not claimed)</h2>
+      <div id="benchmark"></div>
+    </section>
+  </main>
+
+  <aside id="outcome" class="outcome hidden"></aside>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

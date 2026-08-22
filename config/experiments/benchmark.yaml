@@ -1,0 +1,85 @@
+name: jaadu_historical_replay_v1
+description: >
+  Pre-event replay benchmark. Every feature used at a cutoff must have
+  timestamp <= cutoff. Annual series are only visible in year Y after
+  an availability_lag_months delay (default 8 for production statistics).
+
+seed: 42
+
+events:
+  - id: india_marathwada_2015
+    country: IND
+    region: marathwada
+    domain: food_system
+    title: Marathwada 2015 kharif agricultural drought
+    prediction_cutoff: "2015-08-01"
+    conventional_visible_date: "2015-11-01"
+    event_window_start: "2015-06-01"
+    event_window_end: "2016-03-01"
+    documented_mechanism: >
+      El Niño–associated monsoon rainfall deficit in 2015, following a dry
+      2014, produced meteorological then hydrological then agricultural drought
+      in Marathwada. Pulse and rainfed cereal losses were large. Reservoir
+      storage in Aurangabad division was among the lowest in the state.
+      This is a documented multi-domain pathway, not a single-variable spike.
+    documented_mechanism_template: environmental_production_shock
+    conventional_headline: >
+      Official/seasonal crop production estimates and drought-impact reporting
+      after kharif harvest, plus later food/fodder stress. A rainfall-only SPI
+      monitor can flag meteorological drought earlier; the research question is
+      whether a cross-domain structure is discovered before headline production
+      and price outcomes, with competing hypotheses and VoI.
+    citations:
+      - Gadgil and Gadgil 2016, Current Science, monsoon variability and Marathwada
+      - Udmale et al. 2016 on Maharashtra drought 2011–2016
+      - Mishra et al. related Marathwada yield analyses
+    negative_control_windows:
+      - ["2010-01-01", "2012-12-01"]
+      - ["2017-01-01", "2018-12-01"]
+
+  - id: brazil_southeast_2014
+    country: BRA
+    region: sao_paulo_cantareira
+    domain: food_system
+    title: Southeast Brazil 2014 rainy-season failure
+    prediction_cutoff: "2013-12-01"
+    conventional_visible_date: "2014-04-01"
+    event_window_start: "2013-10-01"
+    event_window_end: "2015-02-01"
+    documented_mechanism: >
+      Failure of the 2013/14 austral summer rains associated with persistent
+      blocking, producing record-low inflows to Cantareira, agricultural losses
+      (sugarcane, coffee, fruit, beans) and later a public water crisis. The
+      headline reservoir emergency became unambiguous in 2014; climate and
+      water-balance anomalies were forming in late 2013 into summer 2014.
+    documented_mechanism_template: hydrological_constraint
+    conventional_headline: >
+      Cantareira storage falling below operational rules (reported ~12.5% by
+      April 2014, ~5% by January 2015). This prototype does not ingest the
+      official reservoir series; conventional baseline uses rainfall SPI and
+      later FAO food-price movements.
+    citations:
+      - Marengo et al. 2015 Revista USP
+      - Coelho et al. / Otto et al. World Weather Attribution 2014–15
+      - Nobre et al. on the 2014 drought and water crisis
+    negative_control_windows:
+      - ["2009-01-01", "2011-12-01"]
+      - ["2016-06-01", "2018-12-01"]
+
+leakage_rules:
+  - Annual agricultural statistics for year Y become available at Y-12-01 plus availability_lag_months.
+  - Text documents are admitted only if published_at <= cutoff.
+  - Reanalysis values are admitted by their valid_time, with an explicit caveat that ERA5 is a retrospective dataset (see docs/leakage.md).
+  - No future-window features, no target leakage, no post-event revisions.
+
+availability_lag_months:
+  cereal_yield: 8
+  crop_production_index: 8
+  food_price_index: 1
+  wheat_price: 0
+  rice_price: 0
+  maize_price: 0
+  cotton_price: 0
+  fertilizer_price: 0
+  electricity_generation: 2
+  enso_oni: 1

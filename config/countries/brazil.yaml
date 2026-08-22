@@ -1,0 +1,26 @@
+id: BRA
+name: Brazil
+iso3: BRA
+brics_member: true
+notes: >
+  Second BRICS validation country. The 2014–2015 Southeast Brazil drought
+  connects climate, hydrology, energy (hydro), agriculture and markets.
+
+regions:
+  - id: sao_paulo_cantareira
+    name: São Paulo / Cantareira basin
+    admin_level: watershed
+    country: BRA
+    centroid: { lat: -23.05, lon: -46.35 }
+    bbox: { south: -23.8, west: -47.2, north: -22.4, east: -45.6 }
+    stations:
+      - { id: cantareira, name: Cantareira headwaters, lat: -23.05, lon: -46.35 }
+      - { id: campinas, name: Campinas agricultural belt, lat: -22.9056, lon: -47.0608 }
+    why: >
+      2013–2015 rainy-season failure, Cantareira collapse, sugarcane/coffee/orange
+      yield impacts, and urban water crisis. Headline reservoir indicator became
+      unambiguous later than climate/water-balance anomalies.
+    data_notes: >
+      Official Cantareira % volume time series is not redistributed here.
+      GloFAS river discharge and ERA5 precipitation/ET are used as public proxies.
+      Reservoir storage itself is marked UNAVAILABLE.

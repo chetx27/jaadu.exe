@@ -1,0 +1,37 @@
+temporal:
+  working_frequency: month
+  min_history_months: 60
+  seasonality_window_years: 8
+  max_lag_months: 6
+
+anomaly:
+  robust_z_threshold: 1.5
+  strong_z_threshold: 2.5
+  min_abnormal_variables: 3
+  mahalanobis_p_threshold: 0.05
+  isolation_forest_contamination: 0.08
+  persistence_months: 2
+  relationship_shift_z: 2.0
+
+graph:
+  min_abs_crosscorr: 0.25
+  granger_alpha: 0.05
+  pcmci_alpha: 0.05
+  rolling_window_months: 36
+  edge_stability_min: 0.4
+
+hypothesis:
+  min_competitors: 3
+  posterior_temperature: 1.0
+  artifact_prior: 0.15
+  seasonal_prior: 0.20
+  mechanism_prior_boost: 1.15
+
+voi:
+  time_penalty_lambda: 0.15
+  decision_threshold: 0.70
+  investigate_threshold: 0.40
+
+evaluation:
+  random_seed: 42
+  false_alarm_scan_step_months: 1

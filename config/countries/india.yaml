@@ -1,0 +1,35 @@
+id: IND
+name: India
+iso3: IND
+brics_member: true
+notes: >
+  Initial validation environment, not product identity. Subnational analysis
+  uses reanalysis centroids because gauge-level IMD archives are not redistributable
+  here. ERA5 is not equivalent to IMD district rainfall.
+
+regions:
+  - id: marathwada
+    name: Marathwada (Maharashtra)
+    admin_level: agro_climatic_region
+    country: IND
+    centroid: { lat: 19.8762, lon: 75.3433 }
+    bbox: { south: 17.8, west: 74.5, north: 20.9, east: 77.6 }
+    stations:
+      - { id: aurangabad, name: Chhatrapati Sambhajinagar, lat: 19.8762, lon: 75.3433 }
+      - { id: solapur, name: Solapur, lat: 17.6599, lon: 75.9064 }
+    why: >
+      Documented 2014–2016 meteorological, hydrological and agricultural drought
+      with rainfed crop losses (pulses, sorghum) and reservoir stress.
+    data_notes: >
+      Reservoir storage (CWC) is registered as UNAVAILABLE in this prototype.
+      River discharge uses GloFAS reanalysis as a hydrological proxy.
+
+  - id: vidarbha
+    name: Vidarbha (Maharashtra)
+    admin_level: agro_climatic_region
+    country: IND
+    centroid: { lat: 21.1458, lon: 79.0882 }
+    bbox: { south: 19.5, west: 76.5, north: 21.8, east: 80.5 }
+    stations:
+      - { id: nagpur, name: Nagpur, lat: 21.1458, lon: 79.0882 }
+    why: Adjacent drought-affected cotton belt used as spatial-coherence check.

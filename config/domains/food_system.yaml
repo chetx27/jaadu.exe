@@ -1,0 +1,69 @@
+id: food_system
+name: Food-system shock detection
+outcome_family: community_food_access
+node_types:
+  - CLIMATE
+  - WATER
+  - AGRICULTURE
+  - ENERGY
+  - TRANSPORT
+  - MARKET
+  - HEALTH
+  - INFRASTRUCTURE
+  - POPULATION
+  - POLICY
+  - EVENT
+  - OUTCOME
+
+watched_variables:
+  - rainfall
+  - temperature
+  - et0
+  - climatic_water_balance
+  - soil_moisture
+  - river_discharge
+  - enso_oni
+  - cereal_yield
+  - crop_production_index
+  - fertilizer_price
+  - food_price_index
+  - wheat_price
+  - rice_price
+  - maize_price
+  - cotton_price
+  - electricity_generation
+
+headline_outcome_variables:
+  - cereal_yield
+  - crop_production_index
+  - food_price_index
+
+mechanism_templates:
+  - id: environmental_production_shock
+    label: Environmental stress driving a developing production shock
+    expected_order: [CLIMATE, WATER, AGRICULTURE, MARKET]
+    required_node_types: [CLIMATE, AGRICULTURE]
+  - id: hydrological_constraint
+    label: Hydrological constraint amplifying agricultural stress
+    expected_order: [WATER, AGRICULTURE, MARKET]
+    required_node_types: [WATER, AGRICULTURE]
+  - id: logistics_disruption
+    label: Logistics or transport disruption
+    expected_order: [TRANSPORT, MARKET, AGRICULTURE]
+    required_node_types: [TRANSPORT]
+  - id: market_disturbance
+    label: Market disturbance or international price transmission
+    expected_order: [MARKET]
+    required_node_types: [MARKET]
+  - id: energy_constraint
+    label: Energy availability constraining irrigation or logistics
+    expected_order: [ENERGY, WATER, AGRICULTURE]
+    required_node_types: [ENERGY]
+  - id: reporting_artifact
+    label: Measurement, reporting, or reanalysis artifact
+    expected_order: []
+    required_node_types: []
+  - id: seasonal_baseline
+    label: Unremarkable seasonal behaviour
+    expected_order: []
+    required_node_types: []
