@@ -102,6 +102,13 @@ function renderAll(inv) {
   renderGraph(inv);
   renderHyps(inv);
   renderEvidence(inv);
+  if (inv.spatial) {
+    const ag = (inv.spatial.agreements || []).map((a) => {
+      if (a.status !== "compared") return `<div class="fine">${a.neighbor}: ${a.status}</div>`;
+      return `<div class="fine">${a.neighbor} same-sign ${(a.same_sign_fraction * 100).toFixed(0)}%</div>`;
+    }).join("");
+    $("evidence").innerHTML += `<div class="ev"><b>Spatial coherence</b><div class="fine">${inv.spatial.interpretation || inv.spatial.reason || ""}</div>${ag}</div>`;
+  }
   renderCf(inv);
   renderVoi(inv);
   renderReport(inv);

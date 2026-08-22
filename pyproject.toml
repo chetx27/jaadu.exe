@@ -3,11 +3,11 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "jaadu.exe"
+name = "jaadu-exe"
 version = "0.1.0"
 description = "jaadu.exe: discovery engine for emerging multi-domain community failure pathways"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 license = { text = "MIT" }
 authors = [{ name = "jaadu.exe research prototype" }]
 dependencies = [
@@ -44,4 +44,4 @@ pythonpath = ["src"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py39"

@@ -64,21 +64,37 @@ def _retry_get(
 def fetch_open_meteo_station(
     client: httpx.Client, lat: float, lon: float, start: str, end: str
 ) -> pd.DataFrame:
-    params = {
-        "latitude": lat,
-        "longitude": lon,
-        "start_date": start,
-        "end_date": end,
-        "daily": ",".join(CLIMATE_DAILY),
-        "timezone": "UTC",
-    }
-    r = _retry_get(client, OPEN_METEO, params)
-    daily = r.json().get("daily") or {}
-    if not daily or "time" not in daily:
-        return pd.DataFrame()
-    frame = pd.DataFrame(daily)
-    frame["timestamp"] = pd.to_datetime(frame["time"])
-    return frame
+    daily_sets = [
+        CLIMATE_DAILY,
+        [
+            "precipitation_sum",
+            "temperature_2m_mean",
+            "temperature_2m_max",
+            "et0_fao_evapotranspiration",
+        ],
+    ]
+    last_exc = None
+    for daily_vars in daily_sets:
+        params = {
+            "latitude": lat,
+            "longitude": lon,
+            "start_date": start,
+            "end_date": end,
+            "daily": ",".join(daily_vars),
+            "timezone": "UTC",
+        }
+        try:
+            r = _retry_get(client, OPEN_METEO, params)
+            daily = r.json().get("daily") or {}
+            if not daily or "time" not in daily:
+                continue
+            frame = pd.DataFrame(daily)
+            frame["timestamp"] = pd.to_datetime(frame["time"])
+            return frame
+        except Exception as exc:
+            last_exc = exc
+            continue
+    raise RuntimeError(f"Open-Meteo failed for {lat},{lon}: {last_exc}")
 
 
 def fetch_glofas(
@@ -107,16 +123,23 @@ def monthly_climate(
         return daily
     d = daily.copy()
     d["month"] = d["timestamp"].dt.to_period("M").dt.to_timestamp()
-    agg = d.groupby("month").agg(
-        rainfall=("precipitation_sum", "sum"),
-        temperature=("temperature_2m_mean", "mean"),
-        temperature_max=("temperature_2m_max", "mean"),
-        et0=("et0_fao_evapotranspiration", "sum"),
-        soil_moisture=("soil_moisture_0_to_7cm", "mean"),
-        vpd=("vapour_pressure_deficit", "mean"),
-        n_days=("timestamp", "count"),
-    )
-    agg["climatic_water_balance"] = agg["rainfall"] - agg["et0"]
+    named = {}
+    if "precipitation_sum" in d.columns:
+        named["rainfall"] = ("precipitation_sum", "sum")
+    if "temperature_2m_mean" in d.columns:
+        named["temperature"] = ("temperature_2m_mean", "mean")
+    if "temperature_2m_max" in d.columns:
+        named["temperature_max"] = ("temperature_2m_max", "mean")
+    if "et0_fao_evapotranspiration" in d.columns:
+        named["et0"] = ("et0_fao_evapotranspiration", "sum")
+    if "soil_moisture_0_to_7cm" in d.columns:
+        named["soil_moisture"] = ("soil_moisture_0_to_7cm", "mean")
+    if "vapour_pressure_deficit" in d.columns:
+        named["vpd"] = ("vapour_pressure_deficit", "mean")
+    named["n_days"] = ("timestamp", "count")
+    agg = d.groupby("month").agg(**{k: v for k, v in named.items()})
+    if "rainfall" in agg.columns and "et0" in agg.columns:
+        agg["climatic_water_balance"] = agg["rainfall"] - agg["et0"]
     agg = agg.reset_index().rename(columns={"month": "timestamp"})
     agg["geo_id"] = geo_id
     agg["station"] = station

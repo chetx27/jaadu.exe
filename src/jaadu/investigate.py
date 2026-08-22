@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 import pandas as pd
 from jaadu.anomaly.detect import detect
 from jaadu.core.config import DATA, engine_config, region_by_id
 from jaadu.core.registry import load_registry, processed_path
 from jaadu.core.schemas import Availability, AlertReport
 from jaadu.counterfactuals.scenarios import expected_pattern, matched_driver_hold
+from jaadu.features.spatial import spatial_coherence
 from jaadu.graph.temporal import anomalous_subgraph, build_graph, node_type_for
 from jaadu.hypotheses.engine import challenge, instantiate_hypotheses
 from jaadu.multimodal.extract import extract_corpus
@@ -49,7 +49,7 @@ def investigate(geo_id: str, as_of: str, use_gemini: bool | None = None) -> dict
     panel = pivot_region(obs, geo_id, as_of)
     if panel.empty:
         return {"error": "no_data", "geo_id": geo_id, "as_of": as_of}
-    detection = detect(panel, as_of)
+    detection = detect(panel, as_of, include_isolation=True)
     z = detection.pop("seasonal_z")
     z_tail = z.tail(24)
     graph = build_graph(panel, geo_id, as_of)
@@ -76,6 +76,9 @@ def investigate(geo_id: str, as_of: str, use_gemini: bool | None = None) -> dict
     already = set(panel.columns)
     voi = rank_observations(hyps, already_have=already)
     pathway = anomalous_subgraph(graph, detection, cfg["anomaly"]["robust_z_threshold"])
+    spatial = spatial_coherence(
+        obs, geo_id, as_of, [s["variable"] for s in detection["current_signals"]]
+    )
     voi0 = voi[0] if voi else None
     posterior = leading.score.posterior
     if posterior >= cfg["voi"]["decision_threshold"] and detection["multi_signal_alert"]:
@@ -141,6 +144,7 @@ def investigate(geo_id: str, as_of: str, use_gemini: bool | None = None) -> dict
         "challenge": challenged,
         "counterfactuals": cf,
         "voi": [v.model_dump() for v in voi],
+        "spatial": spatial,
         "report": report.model_dump(),
         "evidence": evidence,
         "panel_index": [t.isoformat() for t in panel.index],

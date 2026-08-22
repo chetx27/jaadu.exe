@@ -14,6 +14,7 @@ def main(argv: list[str] | None = None) -> None:
     p_inv.add_argument("--as-of", required=True)
     p_inv.add_argument("--gemini", action="store_true")
     sub.add_parser("evaluate", help="Run the historical replay benchmark")
+    p_pre = sub.add_parser("precompute", help="Run investigations for all benchmark cutoffs")
     p_serve = sub.add_parser("serve", help="Start the investigation API")
     p_serve.add_argument("--host", default=os.environ.get("JAADU_HOST", "127.0.0.1"))
     p_serve.add_argument("--port", type=int, default=int(os.environ.get("JAADU_PORT", "8000")))
@@ -41,6 +42,23 @@ def main(argv: list[str] | None = None) -> None:
 
         payload = run_benchmark()
         print(json.dumps(payload["summary"], indent=2))
+    elif args.cmd == "precompute":
+        from jaadu.core.config import load_benchmark
+        from jaadu.investigate import investigate
+
+        out = []
+        for event in load_benchmark()["events"]:
+            rec = investigate(event["region"], event["prediction_cutoff"], use_gemini=False)
+            out.append(
+                {
+                    "event": event["id"],
+                    "region": event["region"],
+                    "as_of": event["prediction_cutoff"],
+                    "alert": rec.get("detection", {}).get("multi_signal_alert"),
+                    "leader": (rec.get("hypotheses") or [{}])[0].get("template_id"),
+                }
+            )
+        print(json.dumps(out, indent=2))
     elif args.cmd == "serve":
         import uvicorn
 

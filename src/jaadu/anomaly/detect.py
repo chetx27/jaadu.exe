@@ -98,7 +98,7 @@ def joint_combination_surprise(z: pd.DataFrame, as_of: str, threshold: float) ->
     }
 
 
-def detect(panel: pd.DataFrame, as_of: str) -> dict:
+def detect(panel: pd.DataFrame, as_of: str, include_isolation: bool = False) -> dict:
     cfg = engine_config()["anomaly"]
     cut = pd.Timestamp(as_of)
     hist = panel.loc[panel.index <= cut].copy()
@@ -141,10 +141,12 @@ def detect(panel: pd.DataFrame, as_of: str) -> dict:
                     earliest = start.isoformat()
         changes = _cusum(series)
     (d2, p_mah) = mahalanobis_p(latest_z, z.iloc[:-1] if len(z) > 1 else z)
-    iso = isolation_score(z.fillna(0.0), cfg["isolation_forest_contamination"])
-    iso_latest = (
-        float(iso.iloc[-1]) if not iso.empty and iso.index[-1] == z.index[-1] else float("nan")
-    )
+    iso_latest = float("nan")
+    if include_isolation:
+        iso = isolation_score(z.fillna(0.0), cfg["isolation_forest_contamination"])
+        iso_latest = (
+            float(iso.iloc[-1]) if not iso.empty and iso.index[-1] == z.index[-1] else float("nan")
+        )
     combo = joint_combination_surprise(z, as_of, cfg["robust_z_threshold"])
     n_abn = len(
         [c for c in current if c["persistent"] or abs(c["seasonal_z"]) >= cfg["robust_z_threshold"]]

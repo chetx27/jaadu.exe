@@ -128,8 +128,6 @@ def extract_corpus(cutoff: str, use_gemini: bool | None = None) -> list[dict]:
                 evs = heuristic_extract(doc)
         except Exception:
             evs = heuristic_extract(doc)
-            for e in evs:
-                e.notes = "gemini_failed_fallback_heuristic"
         all_ev.extend(evs)
     payload = [e.model_dump() for e in all_ev]
     out = evidence_dir() / f"evidence_{cutoff}.json"
