@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pandas as pd
+from jaadu.ingestion.normalize import normalize_observations
 from jaadu.core.registry import save_registry, write_parquet
 from jaadu.ingestion.fetch import (
     ingest_climate,
@@ -21,7 +22,7 @@ def run_ingest() -> pd.DataFrame:
     frames = [f for f in (climate, wb, fpi, fred, oni) if f is not None and (not f.empty)]
     observations = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
     if not observations.empty:
-        observations = observations.sort_values(["timestamp", "geo_id", "variable"])
+        observations = normalize_observations(observations)
         write_parquet(observations, "observations.parquet")
     records = r1 + r2 + r3 + r4 + r5 + static_unavailable_records()
     save_registry(records)

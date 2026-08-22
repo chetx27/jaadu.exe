@@ -1,0 +1,35 @@
+name: robustness_pilot_v1
+seed: 42
+description: >
+  Stress tests applied to the same as-of panels as the historical replay.
+  Variables are dropped or delayed, never imputed. Results must be written
+  by the robustness runner; this file only defines the cases.
+
+events:
+  - region: marathwada
+    as_of: "2015-08-01"
+  - region: sao_paulo_cantareira
+    as_of: "2013-12-01"
+
+cases:
+  - name: noise_0p25
+    kind: noise
+    scale: 0.25
+    seed: 42
+  - name: delay_rainfall_1m
+    kind: delay
+    variable: rainfall
+    months: 1
+  - name: drop_rainfall
+    kind: drop
+    variables: [rainfall]
+  - name: drop_water
+    kind: drop
+    variables: [soil_moisture, climatic_water_balance, river_discharge]
+  - name: drop_market
+    kind: drop
+    variables: [food_price_index, wheat_price, rice_price, maize_price, cotton_price, fertilizer_price]
+  - name: missing_10pct
+    kind: missing
+    fraction: 0.1
+    seed: 42

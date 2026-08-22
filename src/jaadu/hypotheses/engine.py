@@ -4,6 +4,9 @@ import math
 from jaadu.core.config import engine_config, load_domain
 from jaadu.core.schemas import CausalStatus, Hypothesis, HypothesisScore
 from jaadu.graph.temporal import node_type_for
+from jaadu.hypotheses.adversary import challenge
+
+__all__ = ["instantiate_hypotheses", "challenge"]
 
 
 def _sig(x: float) -> float:
@@ -221,32 +224,3 @@ def instantiate_hypotheses(
         h.score.rank = i
     return hyps
 
-
-def challenge(leading: Hypothesis, others: list[Hypothesis], detection: dict) -> dict:
-    attacks = []
-    if leading.score.temporal_consistency < 0.5:
-        attacks.append("Temporal order does not match the claimed mechanism.")
-    if leading.score.contradictory > 0.3:
-        attacks.append("Contradictory numeric pattern is already material.")
-    if leading.unknown_variables:
-        attacks.append(
-            "Leader depends on unobserved variables: " + ", ".join(leading.unknown_variables[:6])
-        )
-    runner = others[0] if others else None
-    indistinct = runner is not None and abs(leading.score.posterior - runner.score.posterior) < 0.12
-    if indistinct and runner:
-        attacks.append(
-            f"Cannot distinguish from {runner.template_id} (Δ posterior={abs(leading.score.posterior - runner.score.posterior):.3f})."
-        )
-    if not detection.get("multi_signal_alert"):
-        attacks.append(
-            "Joint anomaly does not meet the multi-signal rule; leader may be overfit to noise."
-        )
-    return {
-        "leading_id": leading.hypothesis_id,
-        "attacks": attacks,
-        "indistinguishable": bool(indistinct),
-        "verdict": "insufficient_to_distinguish"
-        if indistinct
-        else "leader_survives_with_uncertainty",
-    }

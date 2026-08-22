@@ -15,6 +15,10 @@ def main(argv: list[str] | None = None) -> None:
     p_inv.add_argument("--gemini", action="store_true")
     sub.add_parser("evaluate", help="Run the historical replay benchmark")
     p_pre = sub.add_parser("precompute", help="Run investigations for all benchmark cutoffs")
+    p_rob = sub.add_parser("robustness", help="Run missingness/noise/delay stress tests")
+    p_leak = sub.add_parser("leakage-audit", help="Audit as-of leakage for a region cutoff")
+    p_leak.add_argument("--region", required=True)
+    p_leak.add_argument("--as-of", required=True)
     p_serve = sub.add_parser("serve", help="Start the investigation API")
     p_serve.add_argument("--host", default=os.environ.get("JAADU_HOST", "127.0.0.1"))
     p_serve.add_argument("--port", type=int, default=int(os.environ.get("JAADU_PORT", "8000")))
@@ -59,6 +63,33 @@ def main(argv: list[str] | None = None) -> None:
                 }
             )
         print(json.dumps(out, indent=2))
+    elif args.cmd == "robustness":
+        from jaadu.anomaly.robustness import run_stress
+        from jaadu.core.config import load_yaml
+        from jaadu.core.config import CONFIG
+        from jaadu.investigate import load_observations
+        from jaadu.validation.checks import pivot_region
+
+        spec = load_yaml(CONFIG / "experiments" / "robustness.yaml")
+        obs = load_observations()
+        payload = []
+        for ev in spec["events"]:
+            panel = pivot_region(obs, ev["region"], ev["as_of"])
+            payload.append(
+                {"region": ev["region"], "as_of": ev["as_of"], **run_stress(panel, ev["as_of"], spec)}
+            )
+        from jaadu.core.config import EXPERIMENTS
+
+        outp = EXPERIMENTS / "results" / "robustness.json"
+        outp.parent.mkdir(parents=True, exist_ok=True)
+        outp.write_text(json.dumps(payload, indent=2, default=str))
+        print(json.dumps(payload, indent=2, default=str))
+    elif args.cmd == "leakage-audit":
+        from jaadu.evaluation.leakage import run_leakage_audit
+        from jaadu.investigate import load_observations
+
+        obs = load_observations()
+        print(json.dumps(run_leakage_audit(obs, args.as_of), indent=2, default=str))
     elif args.cmd == "serve":
         import uvicorn
 

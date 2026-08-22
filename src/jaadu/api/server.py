@@ -70,6 +70,39 @@ def api_ablate(body: AblateBody):
     return ablate(body.region, body.as_of, body.drop_variables)
 
 
+@app.get("/api/evidence/{evidence_id}")
+def api_evidence(evidence_id: str):
+    from jaadu.evidence.store import get_evidence
+
+    rec = get_evidence(evidence_id)
+    if rec is None:
+        raise HTTPException(404, "unknown evidence_id")
+    return rec
+
+
+@app.get("/api/leakage")
+def api_leakage(region: str, as_of: str):
+    from jaadu.evaluation.leakage import run_leakage_audit
+    from jaadu.investigate import load_observations
+
+    try:
+        obs = load_observations()
+    except FileNotFoundError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    return run_leakage_audit(obs, as_of)
+
+
+@app.get("/api/quality")
+def api_quality():
+    from jaadu.investigate import load_observations
+    from jaadu.validation.quality import quality_report
+
+    try:
+        return quality_report(load_observations())
+    except FileNotFoundError as exc:
+        raise HTTPException(400, str(exc)) from exc
+
+
 @app.get("/api/benchmark")
 def api_benchmark():
     path = EXPERIMENTS / "results" / "benchmark.json"

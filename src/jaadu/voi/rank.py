@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-"Decision-theoretic value of information over competing hypotheses.\n\nLet H be the discrete hypothesis set with posterior p(h | data).\nA candidate observation X with hypothesized likelihoods p(x | h) yields\nexpected information gain:\n\n    EIG(X) = H(H) - E_x [ H(H | x) ]\n\nwhich is also the mutual information I(H; X).\n\nWe discretize each X into a 3-level outcome {supports_leader, ambiguous,\ncontradicts_leader} with likelihoods derived from whether the variable is\nexpected to move under each hypothesis. Costs and delays are expert-defined\nmetadata, not learned. Rank by EIG / (cost_usd * (1 + λ days)).\n\nThis is not an LLM suggestion.\n"
 import math
 from jaadu.core.config import engine_config
 from jaadu.core.schemas import Hypothesis, VoICandidate

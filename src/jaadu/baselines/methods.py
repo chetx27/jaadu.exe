@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-"Baselines. Each returns a detection decision at a cutoff using only as-of data."
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import IsolationForest
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
+from jaadu.baselines.retrieval import retrieval_baseline
 from jaadu.core.config import engine_config
 from jaadu.features.seasonal import month_of_year_baseline
-from jaadu.ingestion.documents import documents_as_of
 
 
 def _series(panel: pd.DataFrame, candidates: list[str]) -> pd.Series | None:
@@ -55,27 +54,7 @@ def baseline_rule(panel: pd.DataFrame, as_of: str) -> dict:
 
 
 def baseline_llm_retrieval(as_of: str, geo_id: str) -> dict:
-    docs = documents_as_of(as_of)
-    keys = ("drought", "deficit", "seca", "below-normal", "el niño", "el nino")
-    hits = []
-    for d in docs:
-        if geo_id.split("_")[0] in d["geographic_scope"] or d["geographic_scope"] in {
-            "IND",
-            "BRA",
-            "global",
-            "global_climate",
-            geo_id,
-        }:
-            text = d["text"].lower()
-            if any((k in text for k in keys)):
-                hits.append(d["doc_id"])
-    return {
-        "name": "retrieval_llm_stub",
-        "alert": bool(hits),
-        "score": float(len(hits)),
-        "docs": hits,
-        "method": "keyword retrieval on documents published <= cutoff; not a generative model",
-    }
+    return retrieval_baseline(as_of, geo_id)
 
 
 def run_baselines(panel: pd.DataFrame, as_of: str, geo_id: str) -> list[dict]:
@@ -83,5 +62,5 @@ def run_baselines(panel: pd.DataFrame, as_of: str, geo_id: str) -> list[dict]:
         baseline_single_variable(panel, as_of),
         baseline_multivariate_iforest(panel, as_of),
         baseline_rule(panel, as_of),
-        baseline_llm_retrieval(as_of, geo_id),
+        retrieval_baseline(as_of, geo_id),
     ]
