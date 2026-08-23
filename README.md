@@ -1,4 +1,4 @@
-# jaadu.exe
+### jaadu.exe
 
 **An investigation engine for emerging multi-domain failure pathways.**
 
@@ -102,7 +102,3 @@ frontend/         investigation bench (not a KPI dashboard)
 - Counterfactuals are **scenario analyses** unless identification assumptions are stated and defended (they are not, here).
 - If ingest fails for a source, the variable is marked UNAVAILABLE.
 - Experiment failures are recorded in `experiments/results/`, not hidden.
-
-## License
-
-MIT for code. Upstream datasets remain under their own licenses (ERA5/Copernicus, FAO, World Bank, NOAA, FRED). See the dataset registry after ingest.
