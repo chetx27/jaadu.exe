@@ -1,20 +1,85 @@
 const $ = (id) => document.getElementById(id);
 const api = (path, opts) => fetch(path, opts).then((r) => r.json());
 
-let map, marker, lastInv, events = [];
+let map, marker, rect, gmap, gmarker, grect, lastInv, events = [];
+let mapKind = "leaflet";
+let googleFlags = {};
 
-function initMap() {
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+async function initMap() {
+  try {
+    googleFlags = await api("/api/google");
+  } catch {
+    googleFlags = {};
+  }
+  if (googleFlags.maps_browser_key) {
+    try {
+      await loadScript(`https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(googleFlags.maps_browser_key)}`);
+      if (window.google && google.maps) {
+        mapKind = "google";
+        gmap = new google.maps.Map($("map"), { zoom: 3, center: { lat: 10, lng: 40 }, mapTypeId: "terrain" });
+        return;
+      }
+    } catch {
+      mapKind = "leaflet";
+    }
+  }
   map = L.map("map", { zoomControl: true, attributionControl: true }).setView([10, 40], 3);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{png}".replace("{png}", "png"), {
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png", {
     attribution: "© OpenStreetMap © CARTO",
   }).addTo(map);
 }
 
+function setRegionView(region) {
+  const c = region.centroid;
+  const bbox = region.bbox;
+  if (mapKind === "google" && gmap) {
+    gmap.setCenter({ lat: c.lat, lng: c.lon });
+    gmap.setZoom(6);
+    if (gmarker) gmarker.setMap(null);
+    gmarker = new google.maps.Marker({ position: { lat: c.lat, lng: c.lon }, map: gmap });
+    if (grect) grect.setMap(null);
+    if (bbox) {
+      grect = new google.maps.Rectangle({
+        bounds: { north: bbox.north, south: bbox.south, east: bbox.east, west: bbox.west },
+        map: gmap,
+        strokeColor: "#e0a14a",
+        fillColor: "#e0a14a",
+        fillOpacity: 0.08,
+      });
+    }
+    return;
+  }
+  map.setView([c.lat, c.lon], 6);
+  if (marker) map.removeLayer(marker);
+  marker = L.circleMarker([c.lat, c.lon], { radius: 10, color: "#e0a14a" }).addTo(map);
+  if (rect) map.removeLayer(rect);
+  if (bbox) {
+    rect = L.rectangle(
+      [[bbox.south, bbox.west], [bbox.north, bbox.east]],
+      { color: "#e0a14a", weight: 1, fillOpacity: 0.05 }
+    ).addTo(map);
+  }
+}
+
 async function boot() {
-  initMap();
+  await initMap();
   try {
     const h = await api("/api/health");
-    $("health").textContent = h.ok ? "API: connected" : "API: unexpected";
+    const g = h.google || googleFlags;
+    const bits = Object.entries(g).filter(([, v]) => v === true).map(([k]) => k);
+    $("health").textContent = h.ok
+      ? (bits.length ? `API: connected · Google: ${bits.join(", ")}` : "API: connected · Google: off (heuristic path)")
+      : "API: unexpected";
   } catch {
     $("health").textContent = "API: start with python -m jaadu serve";
   }
@@ -28,6 +93,8 @@ async function boot() {
   $("slider").addEventListener("input", onSlide);
   $("perturb").addEventListener("click", doPerturb);
   $("ablate").addEventListener("click", doAblate);
+  $("brief").addEventListener("click", doBrief);
+  $("photo").addEventListener("click", doPhoto);
   syncEvent();
   renderBenchmark();
 }
@@ -42,7 +109,7 @@ function syncEvent() {
   $("slider").value = String(Math.max(0, months.findIndex((m) => m >= ev.prediction_cutoff)));
   $("slider").dataset.months = JSON.stringify(months);
   $("sliderLabel").textContent = $("asof").value;
-  const region = [...$("region").options].find((o) => o.value === ev.region);
+  $("photoDate").value = ev.prediction_cutoff;
   $("regionNote").textContent = ev.conventional_headline;
 }
 
@@ -83,10 +150,7 @@ async function run(asOf) {
 
 function renderAll(inv) {
   const r = inv.region;
-  if (marker) map.removeLayer(marker);
-  const c = r.centroid;
-  map.setView([c.lat, c.lon], 6);
-  marker = L.circleMarker([c.lat, c.lon], { radius: 10, color: "#e0a14a" }).addTo(map);
+  setRegionView(r);
   $("regionNote").textContent = r.why || "";
   const rep = inv.report;
   const alert = inv.detection.multi_signal_alert;
@@ -278,6 +342,39 @@ async function doAblate() {
   const res = await fetch("/api/ablate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ region: $("region").value, as_of: $("asof").value, drop_variables: drop }) });
   const data = await res.json();
   $("stress").textContent = JSON.stringify(data, null, 2);
+}
+
+async function doBrief() {
+  const lang = $("lang").value;
+  const language_code = { en: "en-IN", hi: "hi-IN", mr: "mr-IN", kn: "kn-IN", pt: "pt-BR" }[lang] || "en-IN";
+  const res = await fetch("/api/brief", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ region: $("region").value, as_of: $("asof").value, language_code, speak: true }),
+  });
+  const data = await res.json();
+  $("stress").textContent = data.text || JSON.stringify(data, null, 2);
+}
+
+async function doPhoto() {
+  const published = $("photoDate").value || $("asof").value;
+  const res = await fetch("/api/evidence/photo", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      region: $("region").value,
+      as_of: $("asof").value,
+      published_at: published,
+      caption: $("photoCaption").value,
+    }),
+  });
+  const data = await res.json();
+  if (data.detail) {
+    $("stress").textContent = JSON.stringify(data, null, 2);
+    return;
+  }
+  $("evidence").innerHTML = `<div class="ev"><div><span class="pill">${data.extraction_kind}</span> ${data.claim}</div>
+    <div class="fine">${data.source} · published ${data.published_at}</div></div>` + $("evidence").innerHTML;
 }
 
 async function renderBenchmark() {

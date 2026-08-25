@@ -32,7 +32,17 @@
     <label>As-of date (no later information)
       <input id="asof" type="date" />
     </label>
+    <label>Brief language
+      <select id="lang">
+        <option value="en">English</option>
+        <option value="hi">Hindi</option>
+        <option value="mr">Marathi</option>
+        <option value="kn">Kannada</option>
+        <option value="pt">Portuguese</option>
+      </select>
+    </label>
     <button id="run" class="primary">Investigate</button>
+    <button id="brief" class="ghost">Spoken / translated brief</button>
     <button id="reveal" class="ghost" disabled>Reveal historical outcome</button>
     <label class="toggle">Replay slider
       <input id="slider" type="range" min="0" max="0" value="0" />
@@ -71,6 +81,16 @@
 
     <section class="panel evid-panel">
       <h2>Evidence and contradictions</h2>
+      <div class="row">
+        <label>Photo published date
+          <input id="photoDate" type="date" />
+        </label>
+        <label>Caption
+          <input id="photoCaption" placeholder="visible crop stress, no numbers" />
+        </label>
+        <button id="photo">Admit photograph</button>
+      </div>
+      <p class="fine">Photos are interpretation-only evidence. They cannot write rainfall or price observations. Publication date must be ≤ as-of.</p>
       <div id="evidence"></div>
     </section>
 

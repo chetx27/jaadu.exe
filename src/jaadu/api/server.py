@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -24,9 +24,48 @@ class AblateBody(BaseModel):
     drop_variables: list[str]
 
 
+class PhotoBody(BaseModel):
+    region: str
+    as_of: str
+    published_at: str
+    caption: str | None = None
+    image_b64: str | None = None
+    mime_type: str = "image/jpeg"
+    source: str | None = None
+
+
+class TranslateBody(BaseModel):
+    text: str
+    target: str = "hi"
+    source: str = "en"
+
+
+class BriefBody(BaseModel):
+    region: str
+    as_of: str
+    language_code: str = "en-IN"
+    speak: bool = False
+    gemini: bool = False
+
+
 @app.get("/api/health")
 def health():
-    return {"ok": True, "product": "jaadu.exe", "not_a_dashboard": True}
+    from jaadu.google.status import google_status
+
+    flags = google_status()
+    return {
+        "ok": True,
+        "product": "jaadu.exe",
+        "not_a_dashboard": True,
+        "google": {k: flags[k] for k in ("gemini", "earth_engine", "maps", "dialogflow", "vertex") if k in flags},
+    }
+
+
+@app.get("/api/google")
+def api_google():
+    from jaadu.google.status import google_status
+
+    return google_status()
 
 
 @app.get("/api/regions")
@@ -74,6 +113,81 @@ def api_perturb(body: PerturbBody):
 @app.post("/api/ablate")
 def api_ablate(body: AblateBody):
     return ablate(body.region, body.as_of, body.drop_variables)
+
+
+@app.post("/api/dialogflow")
+def api_dialogflow(body: dict, x_dialogflow_secret: str | None = Header(default=None)):
+    from jaadu.api.dialogflow import handle_webhook, secret_ok
+
+    if not secret_ok(x_dialogflow_secret):
+        raise HTTPException(401, "bad webhook secret")
+    try:
+        return handle_webhook(body)
+    except Exception as exc:
+        raise HTTPException(500, str(exc)) from exc
+
+
+@app.post("/api/evidence/photo")
+def api_photo(body: PhotoBody):
+    import base64
+    import json
+    import pandas as pd
+    from jaadu.core.provenance import evidence_dir
+    from jaadu.multimodal.vision import extract_photo
+
+    if pd.Timestamp(body.published_at) > pd.Timestamp(body.as_of):
+        raise HTTPException(400, "photo published_at is after as_of cutoff")
+    image_bytes = base64.b64decode(body.image_b64) if body.image_b64 else None
+    ev = extract_photo(
+        {
+            "photo_id": f"{body.region}:{body.published_at}",
+            "region": body.region,
+            "geographic_scope": body.region,
+            "published_at": body.published_at,
+            "caption": body.caption,
+            "source": body.source or "investigator_upload",
+            "mime_type": body.mime_type,
+        },
+        image_bytes,
+    )
+    path = evidence_dir() / "photos.jsonl"
+    path.open("a").write(json.dumps(ev.model_dump(), default=str) + "\n")
+    return ev.model_dump()
+
+
+@app.post("/api/translate")
+def api_translate(body: TranslateBody):
+    from jaadu.multimodal.translate import translate_text
+
+    return translate_text(body.text, body.target, body.source)
+
+
+@app.post("/api/brief")
+def api_brief(body: BriefBody):
+    import base64
+    from jaadu.multimodal.translate import translate_text
+    from jaadu.multimodal.voice import synthesize_brief
+
+    inv = investigate(body.region, body.as_of, use_gemini=body.gemini or None)
+    if inv.get("error"):
+        raise HTTPException(400, str(inv))
+    report = inv.get("report") or {}
+    leader = report.get("leading_hypothesis") or {}
+    next_obs = report.get("next_best_observation") or {}
+    text = (
+        f"{report.get('risk')} in {report.get('geography')} as of {report.get('detection_time')}. "
+        f"Leading hypothesis: {leader.get('statement') or 'none'}. "
+        f"Next observation: {next_obs.get('label') or 'n/a'}. "
+        "This is not a price or rainfall forecast."
+    )
+    lang = body.language_code.split("-")[0]
+    if lang != "en":
+        text = translate_text(text, lang, "en").get("text") or text
+    audio = synthesize_brief(text, body.language_code) if body.speak else {"skipped": True, "reason": "speak=false"}
+    payload = {"text": text, "tts": {k: audio[k] for k in audio if k != "audio_content"}}
+    if audio.get("audio_content"):
+        payload["audio_mp3_b64"] = base64.b64encode(audio["audio_content"]).decode("ascii")
+    return payload
 
 
 @app.get("/api/evidence/{evidence_id}")
