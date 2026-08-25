@@ -1,0 +1,15 @@
+{
+  "hosting": {
+    "public": "frontend",
+    "ignore": ["firebase.json", "**/.*"],
+    "rewrites": [
+      {
+        "source": "/api/**",
+        "run": {
+          "serviceId": "jaadu-exe",
+          "region": "asia-south1"
+        }
+      }
+    ]
+  }
+}

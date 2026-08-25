@@ -5,6 +5,7 @@ import pandas as pd
 from sklearn.ensemble import IsolationForest
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from jaadu.baselines.retrieval import retrieval_baseline
+from jaadu.baselines.vertex import baseline_vertex
 from jaadu.core.config import engine_config
 from jaadu.features.seasonal import month_of_year_baseline
 
@@ -63,4 +64,5 @@ def run_baselines(panel: pd.DataFrame, as_of: str, geo_id: str) -> list[dict]:
         baseline_multivariate_iforest(panel, as_of),
         baseline_rule(panel, as_of),
         retrieval_baseline(as_of, geo_id),
+        baseline_vertex(panel, as_of, geo_id),
     ]
