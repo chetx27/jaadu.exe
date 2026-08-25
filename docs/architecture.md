@@ -28,10 +28,14 @@ jaadu.exe is a **batch investigation engine** with an HTTP façade. It is not a 
 | seasonal z, CUSUM, Mahalanobis, IsolationForest | yes (seeded) | no |
 | PCMCI-lite, Granger | yes | no |
 | hypothesis scoring, VoI EIG | yes | no |
-| document → EvidenceObject | heuristic default | Gemini optional |
+| document → EvidenceObject | heuristic default | Gemini optional; Translation API first if language ≠ working language |
+| citizen photograph | caption-only default | Gemini multimodal optional; always `interpretation` |
+| UI map | Leaflet | Google Maps JS if `MAPS_BROWSER_KEY` |
+| voice brief / Dialogflow | off | Cloud TTS / Dialogflow webhook calling existing APIs |
+| evaluation baseline | seasonal z, IF, rules, retrieval | Vertex endpoint optional and skipped without credentials |
 | UI copy | static | no |
 
-Gemini, when configured, **only** structures dated documents into `EvidenceObject`s. It cannot write numeric observations and cannot bypass `available_at <= cutoff`.
+Gemini, when configured, **only** structures dated documents into `EvidenceObject`s. It cannot write numeric observations and cannot bypass `available_at <= cutoff`. Earth Engine writes lagged NDVI/LST observations with explicit `available_at`. Dialogflow and Cloud TTS are investigator I/O. Vertex is not called from `investigate()`.
 
 ## World state
 
