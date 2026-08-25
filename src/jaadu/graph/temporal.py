@@ -28,6 +28,8 @@ VARIABLE_NODE_TYPE = {
     "maize_price": NodeType.MARKET,
     "cotton_price": NodeType.MARKET,
     "electricity_generation": NodeType.ENERGY,
+    "ndvi": NodeType.AGRICULTURE,
+    "land_surface_temperature": NodeType.CLIMATE,
 }
 
 
