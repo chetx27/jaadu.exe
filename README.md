@@ -69,6 +69,16 @@ python -m jaadu investigate --region marathwada --as-of 2015-08-01 --gemini
 
 Without an API key, documents are parsed by a deterministic heuristic extractor and labeled `heuristic_extraction`. Gemini is **not** the intelligence of the system.
 
+Optional Google Cloud stack (Earth Engine NDVI, Maps, Translate, Speech, Dialogflow, Vertex baseline, Cloud Run):
+
+```bash
+pip install -e ".[google]"
+# fill GOOGLE_CLOUD_PROJECT and related keys in .env
+python -m jaadu google-status
+```
+
+Local ingest / evaluate / investigate still run with every Google variable empty. Earth Engine NDVI is lagged (`available_at` is valid time plus one month) and is never imputed from rainfall. Vertex AutoML, if configured, is an **evaluation comparator only**.
+
 ## Investigator workflow
 
 1. Select a region and an as-of date.

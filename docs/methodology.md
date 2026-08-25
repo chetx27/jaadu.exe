@@ -61,4 +61,6 @@ For each benchmark event:
 
 Ablations: drop climate, water, or market blocks; stats-only climate+water.
 
+**Vertex AutoML / custom endpoints** may appear in `baselines_at_cutoff` as `vertex_automl`. If credentials or `VERTEX_BASELINE_ENDPOINT` are missing, the baseline is `skipped: true`. It is a comparator, not the discovery loop, and it is not used to construct crisis labels.
+
 **Metrics we do not invent:** if evaluate has not been run, there is no accuracy number.

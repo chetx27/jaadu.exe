@@ -32,6 +32,8 @@ watched_variables:
   - maize_price
   - cotton_price
   - electricity_generation
+  - ndvi
+  - land_surface_temperature
 
 headline_outcome_variables:
   - cereal_yield

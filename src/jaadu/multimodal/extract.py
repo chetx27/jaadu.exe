@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from jaadu.core.provenance import evidence_dir, provenance_hash
 from jaadu.core.schemas import EvidenceObject, ExtractionKind
 from jaadu.ingestion.documents import documents_as_of
+from jaadu.multimodal.translate import maybe_translate_doc
 
 VARIABLE_HINTS = {
     "rainfall": "rain|precip|monsoon|chuv",
@@ -121,6 +122,7 @@ def extract_corpus(cutoff: str, use_gemini: bool | None = None) -> list[dict]:
     use = use_gemini if use_gemini is not None else bool(os.environ.get("GEMINI_API_KEY"))
     all_ev = []
     for doc in docs:
+        doc = maybe_translate_doc(doc)
         try:
             if use:
                 evs = gemini_extract(doc)

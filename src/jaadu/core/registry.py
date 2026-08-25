@@ -18,7 +18,7 @@ def load_registry() -> list[DatasetRecord]:
 
 def save_registry(records: list[DatasetRecord]) -> None:
     REGISTRY_PATH.parent.mkdir(parents=True, exist_ok=True)
-    payload = {"datasets": [r.model_dump() for r in records]}
+    payload = {"datasets": [r.model_dump(mode="json") for r in records]}
     REGISTRY_PATH.write_text(yaml.safe_dump(payload, sort_keys=False))
 
 

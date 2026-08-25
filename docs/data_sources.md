@@ -19,8 +19,11 @@ The machine-readable registry is written at ingest time to `data/registry/datase
 |---|---|---|
 | CWC reservoir storage (Maharashtra divisions) | Distinguishes hydrological crisis from meteorological drought | No redistributable monthly series in this repo |
 | SABESP Cantareira % volume | The conventional headline for 2014–15 | Not redistributed; VoI target |
-| MODIS/VIIRS NDVI | Independent vegetation evidence | No Earth Engine export in v0.1 |
-| Agmarknet / CEPEA local prices | True food-access indicator | No clean historical API used here |
+| MODIS/VIIRS NDVI and LST | Independent vegetation / land-surface evidence | Google Earth Engine when `GOOGLE_CLOUD_PROJECT` (or a service account) is set; otherwise UNAVAILABLE. `available_at` = valid month + 1. Not a nowcast. |
+| Agmarknet / data.gov.in local prices | True food-access indicator | Catalog stub; current-year APIs are not a 2015 replay archive |
+| ISRO Bhuvan | Indian satellite context | No authenticated historical export in this repo |
+| IMD district gauges | Gauge rainfall vs ERA5 | Portal recorded; monthly redistributable archive not ingested |
+| WHO GHO | Health outcome context | Too lagged for cutoff discovery; UNAVAILABLE as a leading feature |
 | Transport disruptions | Logistics hypothesis test | No consistent 2013–16 monthly open series ingested |
 | Nutrition / IPC | Outcome layer | Surveys too lagged for early warning |
 
@@ -31,6 +34,7 @@ The machine-readable registry is written at ingest time to `data/registry/datase
 - **National yield** is a *slow outcome*, used in evaluation, not as a leading feature (8-month lag).
 - **International prices** are a conventional headline jaadu.exe should not wait for, and a confounder for “market-only” hypotheses.
 - **ONI** tests whether the engine uses ENSO as context without treating it as destiny.
+- **Earth Engine NDVI/LST** (when configured) is independent vegetation evidence with an explicit availability lag.
 - **Text** supplies claims with provenance; it does not create rainfall numbers.
 
 ## Licenses

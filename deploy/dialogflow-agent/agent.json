@@ -1,0 +1,55 @@
+{
+  "displayName": "jaadu-investigator",
+  "defaultLanguageCode": "en",
+  "supportedLanguageCodes": ["hi", "mr", "kn", "pt"],
+  "timeZone": "Asia/Kolkata",
+  "description": "Voice and chat control surface for jaadu.exe. Does not generate alerts or forecasts.",
+  "webhook": {
+    "uri": "https://REPLACE_ME/api/dialogflow",
+    "username": "",
+    "headers": {
+      "X-Dialogflow-Secret": "REPLACE_WITH_DIALOGFLOW_WEBHOOK_SECRET"
+    }
+  },
+  "intents": [
+    {
+      "displayName": "InvestigateRegion",
+      "parameters": ["region", "as_of"],
+      "trainingPhrases": [
+        "investigate marathwada as of 2015-08-01",
+        "run discovery for sao_paulo_cantareira on 2013-12-01",
+        "Marathwada 2015-08-01 जांच करें"
+      ]
+    },
+    {
+      "displayName": "NextObservation",
+      "parameters": ["region", "as_of"],
+      "trainingPhrases": [
+        "what should we observe next in marathwada as of 2015-08-01",
+        "value of information for vidarbha"
+      ]
+    },
+    {
+      "displayName": "PerturbVariable",
+      "parameters": ["region", "as_of", "variable", "delta_z"],
+      "trainingPhrases": [
+        "perturb rainfall by -1.5 z for marathwada as of 2015-08-01"
+      ]
+    },
+    {
+      "displayName": "AblateDataset",
+      "parameters": ["region", "as_of", "variables"],
+      "trainingPhrases": [
+        "drop ndvi and soil_moisture for marathwada as of 2015-08-01"
+      ]
+    },
+    {
+      "displayName": "RevealOutcome",
+      "parameters": ["region"],
+      "trainingPhrases": [
+        "what actually happened",
+        "reveal the historical outcome"
+      ]
+    }
+  ]
+}

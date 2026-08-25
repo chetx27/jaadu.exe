@@ -1,0 +1,34 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: jaadu-exe
+  annotations:
+    run.googleapis.com/ingress: all
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "2"
+    spec:
+      containerConcurrency: 20
+      containers:
+        - image: gcr.io/PROJECT_ID/jaadu-exe
+          ports:
+            - containerPort: 8000
+          env:
+            - name: JAADU_HOST
+              value: "0.0.0.0"
+            - name: JAADU_PORT
+              value: "8000"
+            - name: GOOGLE_CLOUD_LOCATION
+              value: asia-south1
+          resources:
+            limits:
+              memory: 1Gi
+              cpu: "1"
+# Deploy:
+#   gcloud builds submit --tag gcr.io/$GOOGLE_CLOUD_PROJECT/jaadu-exe
+#   gcloud run deploy jaadu-exe --image gcr.io/$GOOGLE_CLOUD_PROJECT/jaadu-exe \
+#     --region asia-south1 --allow-unauthenticated --port 8000
+# Ingest remains batch. Do not present Cloud Run as a live satellite operations center.

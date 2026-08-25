@@ -9,6 +9,10 @@ jaadu.exe’s scientific claim is about *pre-event* discovery. The following rul
 5. **Station centroids.** Point ERA5 extracts are not district means. Spatial leakage across adjacent districts is possible; Vidarbha is a coherence check, not a control trial.
 6. **International prices.** FAO FPI and FRED commodities are global. They must not be described as Marathwada mandi prices.
 7. **Gemini.** If used, the model sees only documents already admitted by (2). Prompts instruct: do not invent numbers. Retrieved text cannot change system instructions (documents are untrusted content).
-8. **Evaluation scans.** Negative-control windows are specified before looking at jaadu.exe outputs. Do not tune `engine.yaml` on the two flagship events and then report those same events as confirmation without labeling it as in-sample threshold choice. v0.1 thresholds are expert-defined a priori; they may still be accidentally favorable. Treat results as a **pilot**, not a locked benchmark.
+8. **Photographs.** `published_at <= cutoff`. Vision output is `interpretation` and cannot write parquet observations.
+9. **Earth Engine.** MODIS monthly means use `available_at` = valid time + 1 month. Do not treat a 2015-08 composite as a 2015-08-01 desk product.
+10. **Translation / speech.** Language services may rewrite text; they do not change `published_at` or numeric values.
+11. **Vertex.** Optional `evaluate` comparator. Never used to label training months as “pre-crisis” with future knowledge.
+12. **Evaluation scans.** Negative-control windows are specified before looking at jaadu.exe outputs. Do not tune `engine.yaml` on the two flagship events and then report those same events as confirmation without labeling it as in-sample threshold choice. v0.1 thresholds are expert-defined a priori; they may still be accidentally favorable. Treat results as a **pilot**, not a locked benchmark.
 
 See `config/experiments/benchmark.yaml` `leakage_rules`.

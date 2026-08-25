@@ -22,6 +22,7 @@ def main(argv: list[str] | None = None) -> None:
     p_serve = sub.add_parser("serve", help="Start the investigation API")
     p_serve.add_argument("--host", default=os.environ.get("JAADU_HOST", "127.0.0.1"))
     p_serve.add_argument("--port", type=int, default=int(os.environ.get("JAADU_PORT", "8000")))
+    sub.add_parser("google-status", help="Show which optional Google services are configured")
     args = parser.parse_args(argv)
     if args.cmd == "ingest":
         from jaadu.ingestion.pipeline import run_ingest
@@ -90,6 +91,10 @@ def main(argv: list[str] | None = None) -> None:
 
         obs = load_observations()
         print(json.dumps(run_leakage_audit(obs, args.as_of), indent=2, default=str))
+    elif args.cmd == "google-status":
+        from jaadu.google.status import google_status
+
+        print(json.dumps(google_status(), indent=2))
     elif args.cmd == "serve":
         import uvicorn
 
