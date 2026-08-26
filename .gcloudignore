@@ -1,0 +1,14 @@
+.git
+.venv
+.env
+.env.*
+!.env.example
+__pycache__
+*.pyc
+data/processed
+data/raw
+data/registry
+**/*.parquet
+experiments/results
+.pytest_cache
+*.log
