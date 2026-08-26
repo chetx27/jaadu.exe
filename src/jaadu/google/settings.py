@@ -42,6 +42,11 @@ def vertex_baseline_endpoint() -> str | None:
     return env("VERTEX_BASELINE_ENDPOINT")
 
 
+def vertex_baseline_opt_in() -> bool:
+    flag = (env("JAADU_VERTEX_BASELINE") or "").lower()
+    return flag in {"1", "true", "yes", "on"}
+
+
 def vertex_vision_endpoint() -> str | None:
     return env("VERTEX_VISION_ENDPOINT")
 
