@@ -17,5 +17,6 @@ This prototype will look weaker under expert questioning if these are hidden. Th
 13. **No health, transport, or conflict layers as leading features.** WHO/GHO and transport remain UNAVAILABLE on purpose.
 14. **UI perturbation** adds a synthetic Δz; it is a sensitivity demo, not a physical forecast.
 15. **Dialogflow** cannot reveal held-out outcomes and does not generate hypotheses.
+16. **Vertex** is off unless `JAADU_VERTEX_BASELINE` is set. It is an evaluate comparator. Cloud Run does not ship local parquet or `.env`.
 
 If evaluate shows no multi-signal alert at cutoff, that is a **valid experimental result**. Report it. Do not swap in post-event data to “fix” the demo.
