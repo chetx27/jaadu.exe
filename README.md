@@ -77,7 +77,7 @@ pip install -e ".[google]"
 python -m jaadu google-status
 ```
 
-Local ingest / evaluate / investigate still run with every Google variable empty. Earth Engine NDVI is lagged (`available_at` is valid time plus one month) and is never imputed from rainfall. Vertex AutoML, if configured, is an **evaluation comparator only**.
+Local ingest / evaluate / investigate still run with every Google variable empty. Earth Engine NDVI is lagged (`available_at` is valid time plus one month) and is never imputed from rainfall. Vertex AutoML is skipped unless `JAADU_VERTEX_BASELINE=1` and an endpoint are set; it is an evaluation comparator only. Cloud Run is the bench (`deploy/`), not a live ingest pipeline.
 
 ## Investigator workflow
 
