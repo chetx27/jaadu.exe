@@ -16,7 +16,10 @@ def google_status() -> dict:
         ),
         "gemini": bool(settings.gemini_api_key()),
         "gemini_model": settings.gemini_model() if settings.gemini_api_key() else None,
-        "vertex": bool(project),
+        "vertex": bool(
+            project and settings.vertex_baseline_opt_in() and settings.vertex_baseline_endpoint()
+        ),
+        "vertex_opt_in": settings.vertex_baseline_opt_in(),
         "vertex_baseline_endpoint": bool(settings.vertex_baseline_endpoint()),
         "vertex_vision_endpoint": bool(settings.vertex_vision_endpoint()),
         "earth_engine": bool(project or creds),
