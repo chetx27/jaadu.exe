@@ -4,18 +4,24 @@ metadata:
   name: jaadu-exe
   annotations:
     run.googleapis.com/ingress: all
+    run.googleapis.com/description: >
+      Investigation bench only. Ingest is batch. Not a live satellite operations center.
 spec:
   template:
     metadata:
       annotations:
         autoscaling.knative.dev/minScale: "0"
         autoscaling.knative.dev/maxScale: "2"
+        run.googleapis.com/startup-cpu-boost: "true"
+        run.googleapis.com/execution-environment: gen2
     spec:
-      containerConcurrency: 20
+      containerConcurrency: 8
+      timeoutSeconds: 300
       containers:
         - image: gcr.io/PROJECT_ID/jaadu-exe
           ports:
-            - containerPort: 8000
+            - name: http1
+              containerPort: 8000
           env:
             - name: JAADU_HOST
               value: "0.0.0.0"
@@ -23,12 +29,33 @@ spec:
               value: "8000"
             - name: GOOGLE_CLOUD_LOCATION
               value: asia-south1
+            - name: JAADU_VERTEX_BASELINE
+              value: "0"
           resources:
             limits:
               memory: 1Gi
               cpu: "1"
+          startupProbe:
+            httpGet:
+              path: /api/health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 8000
+            periodSeconds: 30
+            timeoutSeconds: 3
+# Build:
+#   gcloud builds submit --config deploy/cloudbuild.yaml
 # Deploy:
-#   gcloud builds submit --tag gcr.io/$GOOGLE_CLOUD_PROJECT/jaadu-exe
+#   gcloud run services replace deploy/cloudrun.yaml --region asia-south1
+# Or:
 #   gcloud run deploy jaadu-exe --image gcr.io/$GOOGLE_CLOUD_PROJECT/jaadu-exe \
-#     --region asia-south1 --allow-unauthenticated --port 8000
-# Ingest remains batch. Do not present Cloud Run as a live satellite operations center.
+#     --region asia-south1 --port 8000 --timeout 300
+# Leave JAADU_VERTEX_BASELINE=0 unless evaluate should call a Vertex endpoint.
+# Mount or bake processed observations separately; the image ships empty data/.
+# GEMINI_API_KEY belongs in Secret Manager, not this file.
