@@ -108,7 +108,6 @@ frontend/         investigation bench (not a KPI dashboard)
 ## Scientific honesty rules
 
 - No fabricated accuracies, partnerships, or “real-time” claims.
-- Correlation ≠ association ≠ causal hypothesis ≠ confirmed cause.
 - Counterfactuals are **scenario analyses** unless identification assumptions are stated and defended (they are not, here).
 - If ingest fails for a source, the variable is marked UNAVAILABLE.
 - Experiment failures are recorded in `experiments/results/`, not hidden.
