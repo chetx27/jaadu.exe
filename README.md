@@ -68,7 +68,6 @@ python -m jaadu investigate --region marathwada --as-of 2015-08-01 --gemini
 ```
 
 Without an API key, documents are parsed by a deterministic heuristic extractor and labeled `heuristic_extraction`. Gemini is **not** the intelligence of the system.
-
 Optional Google Cloud stack (Earth Engine NDVI, Maps, Translate, Speech, Dialogflow, Vertex baseline, Cloud Run):
 
 ```bash
