@@ -2,7 +2,7 @@
 
 **An investigation engine for emerging multi-domain failure pathways.**
 
-Conventional early-warning systems wait for a predefined indicator to cross a threshold. jaadu.exe searches for *unspecified combinations of weak signals* that begin to move together, builds a temporal dependency graph, generates competing explanations, challenges the leading explanation, and computes the **value of additional information** - the cheapest or fastest observation that most reduces decision uncertainty.
+Conventional early warning systems wait for a predefined indicator to cross a threshold. jaadu.exe searches for *unspecified combinations of weak signals* that begin to move together, builds a temporal dependency graph, generates competing explanations, challenges the leading explanation, and computes the **value of additional information** - the cheapest or fastest observation that most reduces decision uncertainty.
 
 This is a research prototype. It is **not** an operational warning service, **not** a chatbot, **not** a CSV-uploader, and **not** a claim that AI can predict disasters.
 
@@ -84,7 +84,6 @@ Local ingest / evaluate / investigate still run with every Google variable empty
 4. It estimates lagged associations (PCMCI-lite + Granger screen).
 5. It instantiates competing hypotheses and an adversary.
 6. It ranks next observations by expected information gain / cost×time.
-7. Only then may you reveal the held-out historical outcome.
 
 Demo 2: perturb a variable (`POST /api/perturb`) — the graph and posteriors recompute.  
 Demo 3: drop a dataset (`POST /api/ablate`) — missingness is explicit; VoI updates.
